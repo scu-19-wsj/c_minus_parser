@@ -242,13 +242,14 @@ TreeNode *param_list()
 /* param_list1->  void  [ ID  [ [  ] ]  {  , param  } ] */
 TreeNode *param_list1()
 {
-    TreeNode *t = newStmtNode(ParamK);
+    TreeNode *t = NULL;
     TreeNode *voidNode = newExpNode(VoidK);
-    if (t != NULL && voidNode != NULL)
-        t->child[0] = voidNode;
     match(VOID);
     if (token == ID)
     {
+        t = newStmtNode(ParamK);
+        if (t != NULL && voidNode != NULL)
+            t->child[0] = voidNode;
         TreeNode *idNode = newExpNode(IdK);
         idNode->attr.name = copyString(tokenString);
         if (idNode != NULL && t != NULL)
@@ -262,14 +263,17 @@ TreeNode *param_list1()
             t->child[2] = empty;
             match(RBRACKET);
         }
+        TreeNode *p = t;
         while (token == COMMA)
         {
             match(COMMA);
-            TreeNode *p = param();
-            t->sibling = p;
-            t = p;
+            TreeNode *q = param();
+            p->sibling = q;
+            p = q;
         }
     }
+    else
+        t = voidNode;
     return t;
 }
 
@@ -296,13 +300,13 @@ TreeNode *param_list2()
         t->child[2] = empty;
         match(RBRACKET);
     }
-
+    TreeNode *p = t;
     while (token == COMMA)
     {
         match(COMMA);
-        TreeNode *p = param();
-        t->sibling = p;
-        t = p;
+        TreeNode *q = param();
+        p->sibling = q;
+        p = q;
     }
     return t;
 }
@@ -710,7 +714,7 @@ TreeNode *simple_exp(TreeNode *addNode)
             addExpNode->child[1] = additive_exp();
         }
         if (addExpNode == NULL)
-            addExpNode = addNode;
+            addExpNode = termNode;
         if (relop(token))
         {
             t = newExpNode(OpK);
@@ -721,7 +725,7 @@ TreeNode *simple_exp(TreeNode *addNode)
         }
 
         if (t == NULL)
-            t = addNode;
+            t = addExpNode;
     }
     return t;
 }
@@ -739,7 +743,7 @@ TreeNode *additive_exp()
         t->child[0] = termNode;
         t->child[1] = additive_exp();
     }
-    else if (relop(token) || token == RPAREN || token == SEMI)
+    else if (relop(token) || token == RPAREN || token == SEMI || token == COMMA)
     {
         t = termNode;
     }
@@ -749,18 +753,18 @@ TreeNode *additive_exp()
 TreeNode *term(void)
 {
     TreeNode *t = NULL;
-    TreeNode *factorNOde = factor();
+    TreeNode *factorNode = factor();
     if (token == OVER || token == TIMES)
     {
         t = newExpNode(OpK);
         t->attr.op = token;
         match(token);
-        t->child[0] = factorNOde;
+        t->child[0] = factorNode;
         t->child[1] = term();
     }
-    else if (token == MINUS || token == PLUS || token == RPAREN || token == SEMI)
+    else if (token == MINUS || token == PLUS || token == RPAREN || token == SEMI || token == COMMA)
     {
-        t = factorNOde;
+        t = factorNode;
     }
     return t;
 }
@@ -769,6 +773,7 @@ TreeNode *term(void)
 TreeNode *args(void)
 {
     TreeNode *t = NULL;
+    TreeNode *p = NULL;
     switch (token)
     {
     case RPAREN:
@@ -779,7 +784,7 @@ TreeNode *args(void)
     case NUM:
         t = newExpNode(ArgsK);
         t->child[0] = exp();
-        TreeNode *p = t->child[0];
+        p = t->child[0];
         while (token == COMMA)
         {
             match(COMMA);

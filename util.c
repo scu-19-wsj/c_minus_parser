@@ -237,7 +237,7 @@ void printTree(TreeNode *tree)
                 fprintf(listing, "ConstK: %d\n", tree->attr.val);
                 break;
             case IdK:
-                fprintf(listing, "Id: %s\n", tree->attr.name);
+                fprintf(listing, "IdK: %s\n", tree->attr.name);
                 break;
             case IntK:
                 fprintf(listing, "IntK\n");
