@@ -1,0 +1,6 @@
+*.c-
+c1.txt
+c2.txt
+cparser
+.vscode 
+obj/
