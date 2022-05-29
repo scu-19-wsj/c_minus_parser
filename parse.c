@@ -8,11 +8,11 @@ static TokenType token; /* holds current token */
 /* function prototypes for recursive calls */
 static TreeNode *program(void);
 static TreeNode *declaration(void);
-static void declaration_(TreeNode *, TreeNode *, TreeNode *);
+static void declaration_(TreeNode **, TreeNode *, TreeNode *);
 static TreeNode *type_specifier(void);
 
 static TreeNode *var_decl(void);
-static void var_decl_(TreeNode *, TreeNode *, TreeNode *);
+static void var_decl_(TreeNode **, TreeNode *, TreeNode *);
 
 static TreeNode *param_list(void);
 static TreeNode *param_list1(void);
@@ -33,7 +33,7 @@ static TreeNode *simple_exp(TreeNode *);
 static TreeNode *additive_exp(void);
 static TreeNode *term(void);
 static TreeNode *factor(void);
-static void factor_(TreeNode *, TreeNode *);
+static void factor_(TreeNode **, TreeNode *);
 static TreeNode *args(void);
 
 static void syntaxError(char *message)
@@ -107,25 +107,25 @@ TreeNode *declaration(void)
         idNode->attr.name = copyString(tokenString);
     match(ID);
 
-    declaration_(t, tS, idNode);
+    declaration_(&t, tS, idNode);
 
     return t;
 }
 
 /* declaration’ ->  ;  |  [ NUM ];  |  ( params )  compound_stmt  */
-void declaration_(TreeNode *t, TreeNode *tyS, TreeNode *idNode)
+void declaration_(TreeNode **t, TreeNode *tyS, TreeNode *idNode)
 {
     switch (token)
     {
     case SEMI:
-        t = newStmtNode(Var_DeclK);
-        t->child[0] = tyS;
-        t->child[1] = idNode;
+        (*t) = newStmtNode(Var_DeclK);
+        (*t)->child[0] = tyS;
+        (*t)->child[1] = idNode;
         match(SEMI);
         break;
     case LBRACKET:
-        t = newStmtNode(Var_DeclK);
-        t->child[0] = tyS;
+        (*t) = newStmtNode(Var_DeclK);
+        (*t)->child[0] = tyS;
 
         match(LBRACKET);
         TreeNode *arrayDecl = newExpNode(Arry_DeclK);
@@ -134,13 +134,13 @@ void declaration_(TreeNode *t, TreeNode *tyS, TreeNode *idNode)
         if (constNode != NULL && token == NUM)
             constNode->attr.val = atoi(tokenString);
         arrayDecl->child[1] = constNode;
-        t->child[1] = arrayDecl;
+        (*t)->child[1] = arrayDecl;
         match(RBRACKET);
 
         match(SEMI);
         break;
     case LPAREN:
-        t = newStmtNode(FuncK);
+        (*t) = newStmtNode(FuncK);
         match(LPAREN);
         TreeNode *paramsNode = param_list();
 
@@ -148,10 +148,10 @@ void declaration_(TreeNode *t, TreeNode *tyS, TreeNode *idNode)
         TreeNode *compNode = compound_stmt();
         if (t != NULL && compNode != NULL && paramsNode != NULL)
         {
-            t->child[0] = tyS;
-            t->child[1] = idNode;
-            t->child[2] = paramsNode;
-            t->child[3] = compNode;
+            (*t)->child[0] = tyS;
+            (*t)->child[1] = idNode;
+            (*t)->child[2] = paramsNode;
+            (*t)->child[3] = compNode;
         }
         break;
 
@@ -175,26 +175,26 @@ TreeNode *var_decl()
         idNode->attr.name = copyString(tokenString);
     match(ID);
 
-    var_decl_(t, tS, idNode);
+    var_decl_(&t, tS, idNode);
 
     return t;
 }
 
-void var_decl_(TreeNode *t, TreeNode *tyS, TreeNode *idNode)
+void var_decl_(TreeNode **t, TreeNode *tyS, TreeNode *idNode)
 {
     switch (token)
     {
     case SEMI:
     case COMMA:
     case RPAREN:
-        t = newStmtNode(Var_DeclK);
-        t->child[0] = tyS;
-        t->child[1] = idNode;
+        (*t) = newStmtNode(Var_DeclK);
+        (*t)->child[0] = tyS;
+        (*t)->child[1] = idNode;
         match(token);
         break;
     case LBRACKET:
-        t = newStmtNode(Var_DeclK);
-        t->child[0] = tyS;
+        (*t) = newStmtNode(Var_DeclK);
+        (*t)->child[0] = tyS;
 
         match(LBRACKET);
         TreeNode *arrayDecl = newExpNode(Arry_DeclK);
@@ -203,7 +203,7 @@ void var_decl_(TreeNode *t, TreeNode *tyS, TreeNode *idNode)
         if (constNode != NULL && token == NUM)
             constNode->attr.val = atoi(tokenString);
         arrayDecl->child[1] = constNode;
-        t->child[1] = arrayDecl;
+        (*t)->child[1] = arrayDecl;
         match(RBRACKET);
 
         match(SEMI);
@@ -544,7 +544,7 @@ TreeNode *factor(void)
             break;
         case LPAREN:
         case LBRACKET:
-            factor_(t, idNode);
+            factor_(&t, idNode);
             break;
         default:
             syntaxError("unexpected token -> ");
@@ -571,24 +571,24 @@ TreeNode *factor(void)
 }
 
 /* factor’ ->  [expression]  |  ( args )  |  ε */
-void factor_(TreeNode *t, TreeNode *idNode)
+void factor_(TreeNode **t, TreeNode *idNode)
 {
     switch (token)
     {
     case LBRACKET:
         match(LBRACKET);
-        t = newExpNode(Arry_ElemK);
-        t->child[0] = idNode;
-        t->child[1] = exp();
+        (*t) = newExpNode(Arry_ElemK);
+        (*t)->child[0] = idNode;
+        (*t)->child[1] = exp();
         match(RBRACKET);
         break;
     case LPAREN:
         match(LPAREN);
-        t = newExpNode(CallK);
-        t->child[0] = idNode;
+        (*t) = newExpNode(CallK);
+        (*t)->child[0] = idNode;
         TreeNode *temp = args();
         if (temp != NULL)
-            t->child[1] = temp;
+            (*t)->child[1] = temp;
         match(RPAREN);
         break;
     default:
