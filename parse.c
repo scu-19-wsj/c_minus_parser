@@ -632,8 +632,8 @@ TreeNode *exp(void)
         numNode = newExpNode(ConstK);
         if (numNode != NULL && token == NUM)
             numNode->attr.val = atoi(tokenString);
-        t = simple_exp(numNode);
         match(NUM);
+        t = simple_exp(numNode);
         break;
     default:
         syntaxError("unexpected token -> ");
