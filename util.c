@@ -252,7 +252,7 @@ void printTree(TreeNode *tree)
                 fprintf(listing, "CallK\n");
                 break;
             case Arry_DeclK:
-                fprintf(listing, "Var_DeclK\n");
+                fprintf(listing, "Arry_DeclK\n");
                 break;
             case ArgsK:
                 fprintf(listing, "Argsk\n");
