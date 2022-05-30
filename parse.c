@@ -38,7 +38,7 @@ static TreeNode *args(void);
 
 static void syntaxError(char *message)
 {
-    fprintf(listing, "\n>>> ");
+    fprintf(listing, "\n2019141460148王世杰\n>>> ");
     fprintf(listing, "Syntax error at line %d: %s", lineno, message);
     // Error = TRUE;
 }
@@ -316,6 +316,7 @@ TreeNode *stmt(void)
     case ID:
     case LPAREN:
     case NUM:
+    case SEMI:
         t = exp_stmt();
         break;
 
