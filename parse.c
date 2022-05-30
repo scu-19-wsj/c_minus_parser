@@ -14,9 +14,6 @@ static TreeNode *declaration(int);
 static void declaration_(TreeNode **, TreeNode *, TreeNode *, int);
 static TreeNode *type_specifier(void);
 
-static TreeNode *var_decl(void);
-static void var_decl_(TreeNode **, TreeNode *, TreeNode *);
-
 static TreeNode *param_list(void);
 static TreeNode *param_list1(void);
 static TreeNode *param_list2(void);
@@ -776,61 +773,3 @@ TreeNode *parse(void)
         syntaxError("Code ends before file\n");
     return t;
 }
-
-
-
-/* var_decl ->  type_specifier  ID  var_decl_
-var_decl_ ->  ;  |  [ NUM ];  */
-/*
-TreeNode *var_decl()
-{
-    TreeNode *t = NULL;
-    TreeNode *tS = type_specifier();
-    TreeNode *idNode = newExpNode(IdK);
-    if (idNode != NULL && token == ID)
-        idNode->attr.name = copyString(tokenString);
-    match(ID);
-
-    var_decl_(&t, tS, idNode);
-
-    return t;
-}
-
-void var_decl_(TreeNode **t, TreeNode *tyS, TreeNode *idNode)
-{
-    switch (token)
-    {
-    case SEMI:
-        (*t) = newStmtNode(Var_DeclK);
-        (*t)->child[0] = tyS;
-        (*t)->child[1] = idNode;
-        match(token);
-        break;
-    case LBRACKET:
-        (*t) = newStmtNode(Var_DeclK);
-        (*t)->child[0] = tyS;
-
-        match(LBRACKET);
-        TreeNode *arrayDecl = newExpNode(Arry_DeclK);
-        arrayDecl->child[0] = idNode;
-        TreeNode *constNode = newExpNode(ConstK);
-        if (constNode != NULL && token == NUM)
-        {
-            constNode->attr.val = atoi(tokenString);
-            match(NUM);
-        }
-        arrayDecl->child[1] = constNode;
-        (*t)->child[1] = arrayDecl;
-        match(RBRACKET);
-
-        match(SEMI);
-        break;
-
-    default:
-        syntaxError("unexpected token -> ");
-        printToken(token, tokenString);
-        token = getToken();
-        break;
-    }
-}
-*/
